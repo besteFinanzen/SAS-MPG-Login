@@ -4,6 +4,7 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:sas_login_app/backend/init.dart';
 import 'package:sas_login_app/ui/templates.dart';
 
 class ScanScreen extends StatefulWidget {
@@ -88,9 +89,12 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
           continue;
         }
         final intCode = int.tryParse(barcode.rawValue!);
+        if (intCode == null) {
+          // TODO: error handling
+        }
         print(intCode);
         try {
-          //TODO: Add your code here
+          onCode(intCode!, _isLogin? "in" : "out");
         } catch (e) {
           if (!context.mounted) return;
           //Show snack bar with error message
