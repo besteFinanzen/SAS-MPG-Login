@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sas_login_app/ui/templates.dart';
 
 import 'backend/init.dart' as backend_init;
 import 'ui/init.dart' as ui_init;
@@ -20,12 +21,8 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+    return MaterialApp(
+      home: MainFrame()
     );
   }
 }
