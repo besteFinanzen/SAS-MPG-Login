@@ -88,23 +88,26 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
         } else if (barcode.rawValue == null) {
           continue;
         }
+        print("raw value:" + barcode.rawValue!);
         final intCode = int.tryParse(barcode.rawValue!);
         if (intCode == null) {
-          // TODO: error handling
+          // TODO: error handling / show actual qr code value
+          return;
         }
         print(intCode);
-        try {
-          onCode(intCode!, _isLogin? "in" : "out");
-        } catch (e) {
+        Student? student = onCode(intCode, _isLogin? "in" : "out");
+        if (student != null) {
+          // TODO show student name & class
+          _confettiController.play();
+        } else {
           if (!context.mounted) return;
           //Show snack bar with error message
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Fehler beim Lesen des QR-Codes: $e'),
+            content: Text('Fehler beim Lesen des QR-Codes'),
             backgroundColor: CupertinoColors.systemRed,
           ));
           return;
         }
-        _confettiController.play();
       }
     }
   }

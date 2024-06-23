@@ -1,3 +1,3 @@
 # sas_login_app
 
-A new Flutter project.
+Schüler checkin/checkout durch QR-Codes für Shule als Staat.

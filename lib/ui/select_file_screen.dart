@@ -7,6 +7,7 @@ import 'package:sas_login_app/ui/templates.dart';
 
 class FileSelectorScreen extends StatefulWidget {
   const FileSelectorScreen({super.key});
+
   @override
   _FileSelectorScreenState createState() => _FileSelectorScreenState();
 }
@@ -22,47 +23,52 @@ class _FileSelectorScreenState extends State<FileSelectorScreen> {
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          (file != null) ? Text('Du hast diese Datei ausgewählt:\n${file!.name}' , textAlign: TextAlign.center) : const Text('Wähle die Schülerliste aus, die du hochladen möchtest.', textAlign: TextAlign.center),
-          (file == null) ? CupertinoButton(
-            color: CupertinoColors.activeBlue,
-            child: const Text('Datei auswählen', style: TextStyle(color: CupertinoColors.white)),
-            onPressed: () async {
-              const XTypeGroup typeGroup = XTypeGroup(
-                label: 'csv',
-                extensions: <String>['csv'],
-              );
-              final XFile? selectedFile = await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]);
-              if (selectedFile != null) {
-                try {
-                  final path = selectedFile.path;
-                  //TODO: Add your code here
-                } catch (e) {
-                  if (!context.mounted) return;
-                  //Show snack bar with error message
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('Fehler beim Lesen der Datei: $e'),
-                    backgroundColor: CupertinoColors.systemRed,
-                  ));
-                  return;
-                }
-                setState(() {
-                  file = selectedFile;
-                });
-              }
-            },
-          ) : CupertinoButton(
-            color: CupertinoColors.activeGreen,
-            child: const Text('Starten', style: TextStyle(color: CupertinoColors.white)),
-            onPressed: () {
-              if (file == null) {
-                // TODO: error handling
-              }
-              initFile(file!.path);
-              Navigator.of(context).push(MaterialPageRoute<void>(
-                builder: (BuildContext context) => ScanScreen()
-              ));
-            },
-          ),
+          (file != null)
+              ? Text('Du hast diese Datei ausgewählt:\n${file!.name}',
+                  textAlign: TextAlign.center)
+              : const Text(
+                  'Wähle die Schülerliste aus, die du hochladen möchtest.',
+                  textAlign: TextAlign.center),
+          (file == null)
+              ? CupertinoButton(
+                  color: CupertinoColors.activeBlue,
+                  child: const Text('Datei auswählen',
+                      style: TextStyle(color: CupertinoColors.white)),
+                  onPressed: () async {
+                    const XTypeGroup typeGroup = XTypeGroup(
+                      label: 'csv',
+                      extensions: <String>['csv'],
+                    );
+                    final XFile? selectedFile = await openFile(
+                        acceptedTypeGroups: <XTypeGroup>[typeGroup]);
+                    if (selectedFile != null) {
+                      final path = selectedFile.path;
+                      print(path);
+                      initFile(path).then((val) {
+                        if (!val) {
+                          if (!context.mounted) return;
+                          //Show snack bar with error message
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text('Fehler beim Lesen der Datei'),
+                            backgroundColor: CupertinoColors.systemRed,
+                          ));
+                        }
+                      });
+                      setState(() {
+                        file = selectedFile;
+                      });
+                    }
+                  },
+                )
+              : CupertinoButton(
+                  color: CupertinoColors.activeGreen,
+                  child: const Text('Starten',
+                      style: TextStyle(color: CupertinoColors.white)),
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute<void>(
+                        builder: (BuildContext context) => ScanScreen()));
+                  },
+                ),
         ],
       ),
     );

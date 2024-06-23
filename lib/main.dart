@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sas_login_app/ui/select_file_screen.dart';
 
 import 'backend/init.dart' as backend_init;
@@ -9,7 +10,7 @@ void main() async {
     backend_init.initBeforeShowingUI(),
     ui_init.initBeforeShowingUI(),
   ]);
-  runApp(const MainApp());
+ runApp(const MainApp());
   await Future.wait([
     backend_init.initAfterShowingUI(),
     ui_init.initAfterShowingUI(),
@@ -21,6 +22,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Permission.manageExternalStorage.request();
+    Permission.manageExternalStorage.isGranted.then((val) {
+      if (!val) {
+        Permission.manageExternalStorage.request();
+      }
+    });
+
     return MaterialApp(
       themeMode: ThemeMode.dark,
       theme: ThemeData.dark(),

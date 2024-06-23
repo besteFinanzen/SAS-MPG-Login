@@ -2,44 +2,61 @@ import 'dart:io';
 
 import 'package:intl/intl.dart';
 
-late File _file;
+late String _path;
 String _delimiter = ";";
 List<String> _types = [];
 List<List<String>> _data = [];
+int _nameIdx = -1;
+int _classIdx = -1;
 
 Future initBeforeShowingUI() async {
 
 }
 
-Future initFile(String path, [String delimiter = ";"]) async {
+Future<bool> initFile(String path, [String delimiter = ";"]) async {
   _delimiter = delimiter;
-  _file = File(path);
-  final lines = await _file.readAsLines();
-  print(lines.join("\n"));
+  _path = path;
+  final file = File(path);
+  final lines = await file.readAsLines();
   if (lines.isEmpty) {
-    throw Exception("File is empty");
+    return true;
   }
   _types = lines[0].split(delimiter);
   for (int i = 1; i < lines.length; i++) {
     final values = lines[i].split(delimiter);
     _data.add(values);
   }
+  for (int i = 0; i < _types.length; i++) {
+    if (_types[i] == "Klasse") {
+      _classIdx = i;
+    } else if (_types[i].startsWith("Name")) {
+      _nameIdx = i;
+    }
+  }
+  if (_classIdx < 0 || _nameIdx < 0) {
+    return false;
+  }
+  return true;
 }
 
-void saveFile() {
+void saveFile() async {
   String content = _types.join(_delimiter);
   for (int i = 0; i < _data.length; i++) {
     content += "\n${_data[i].join(_delimiter)}";
   }
-  print(content);
-  _file.writeAsString(content);
+  //_path = "/storage/emulated/0/Documents/Schülerexempel.csv";
+  var file = File(_path);
+  file = await file.writeAsString(content);
+  file = File(_path);
+  print(_path);
+  print(content + await file.readAsString());
 }
 
 Future initAfterShowingUI() async {
   //TODO: Add your code here
 }
 
-void onCode(int code, String checkType) {
+Student? onCode(int code, String checkType) {
   final now = DateTime.now();
   String time = DateFormat.yMd().format(now);
   int idx = -1;
@@ -52,21 +69,32 @@ void onCode(int code, String checkType) {
   if (idx == -1) {
     idx = _types.length;
     _types.add(time);
-    for (int i=0; i < _data.length; i++) {
+    for (int i = 0; i < _data.length; i++) {
       _data[i].add("");
     }
   }
 
   if (code >= _data.length) {
-    throw Exception("Invalid code");
+    return null;
   }
 
   if (idx >= _data[code].length) {
-    throw Exception("Invalid code");
+    return null;
   }
+  String name = _data[code][_nameIdx];
+  String className = _data[code][_classIdx];
   String checks = _data[code][idx];
-  checks += "$checkType:${now.hour}-${now.minute};";
+  checks += "$checkType:${now.hour}-${now.minute},";
   _data[code][idx] = checks;
   saveFile();
+  Student student = Student(name, className, false);
+  return student;
 }
 
+class Student {
+  String name;
+  String className;
+  bool confirm;
+
+  Student(this.name, this.className, this.confirm);
+}
