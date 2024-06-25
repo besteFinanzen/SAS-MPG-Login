@@ -1,23 +1,23 @@
 import 'dart:io';
 
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 
-late String _path;
 String _delimiter = ";";
 List<String> _types = [];
 List<List<String>> _data = [];
 int _nameIdx = -1;
 int _classIdx = -1;
+late File output;
 
-Future initBeforeShowingUI() async {
+Future initBeforeShowingUI() async {}
 
-}
-
-Future<bool> initFile(String path, [String delimiter = ";"]) async {
+Future<bool> initFile(String content, [String delimiter = ";"]) async {
+  getApplicationDocumentsDirectory().then((val) {
+    output = File("${val.path}/output.csv");
+  });
   _delimiter = delimiter;
-  _path = path;
-  final file = File(path);
-  final lines = await file.readAsLines();
+  final lines = content.split("\n");
   if (lines.isEmpty) {
     return true;
   }
@@ -44,12 +44,7 @@ void saveFile() async {
   for (int i = 0; i < _data.length; i++) {
     content += "\n${_data[i].join(_delimiter)}";
   }
-  //_path = "/storage/emulated/0/Documents/Schülerexempel.csv";
-  var file = File(_path);
-  file = await file.writeAsString(content);
-  file = File(_path);
-  print(_path);
-  print(content + await file.readAsString());
+  await output.writeAsString(content);
 }
 
 Future initAfterShowingUI() async {
@@ -84,10 +79,17 @@ Student? onCode(int code, String checkType) {
   String name = _data[code][_nameIdx];
   String className = _data[code][_classIdx];
   String checks = _data[code][idx];
+  var checksA = checks.split(",");
+  var b = false;
+  if (checksA.isEmpty) {
+    b = false;
+  } else if (checksA.last.startsWith(checkType)){
+    b = true;
+  }
   checks += "$checkType:${now.hour}-${now.minute},";
   _data[code][idx] = checks;
   saveFile();
-  Student student = Student(name, className, false);
+  Student student = Student(name, className, b);
   return student;
 }
 

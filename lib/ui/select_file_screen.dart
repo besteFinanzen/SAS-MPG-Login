@@ -42,9 +42,7 @@ class _FileSelectorScreenState extends State<FileSelectorScreen> {
                     final XFile? selectedFile = await openFile(
                         acceptedTypeGroups: <XTypeGroup>[typeGroup]);
                     if (selectedFile != null) {
-                      final path = selectedFile.path;
-                      print(path);
-                      initFile(path).then((val) {
+                      initFile(await selectedFile.readAsString()).then((val) {
                         if (!val) {
                           if (!context.mounted) return;
                           //Show snack bar with error message
