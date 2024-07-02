@@ -115,8 +115,9 @@ class _ScanScreenState extends State<ScanScreen> {
               Flexible(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: const EdgeInsets.all(80.0),
                   child: QRCodeScanner(
+                    key: UniqueKey(),
                     "hi there",
                     _handleBarcode,
                   ),

@@ -41,7 +41,18 @@ class MainFrame extends StatelessWidget {
                 ),
                 onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
                     builder: (BuildContext context) => const StatisticScreen()
-                )))
+                ))),
+              const PopupMenuItem(
+                  onTap: clearCache, //TODO maybe add dialog to ask
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.show_chart),
+                      SizedBox(width: 10),
+                      Text("Aktuellen Daten löschen")
+                    ],
+                  )
+              )
             ],
           ),
         ],

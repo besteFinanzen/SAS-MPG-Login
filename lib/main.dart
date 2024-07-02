@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sas_login_app/ui/scan_screen.dart';
 import 'package:sas_login_app/ui/select_file_screen.dart';
-import 'package:sas_login_app/ui/stats_screen.dart';
 
 import 'backend/init.dart' as backend_init;
+import 'backend/init.dart';
 import 'ui/init.dart' as ui_init;
 
 void main() async {
@@ -34,7 +34,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
       theme: ThemeData.dark(),
-      initialRoute: "/file",
+      initialRoute: (!hasSavedFile) ? "/file" : "/scan",
       routes: {
         "/file": (_) => const FileSelectorScreen(),
         "/scan": (_) => const ScanScreen(),
