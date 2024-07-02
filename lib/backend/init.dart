@@ -133,13 +133,14 @@ Student? onCode(int code, String checkType) {
 List<TimeStudent> getTimeList() {
   List<TimeStudent> students = [];
   int idx = max(_classIdx, _nameIdx) + 1;
-  //print(_data);
   for (int i = 0; i < _data.length; i++) {
     var student = _data[i];
+    print(student);
     List<double> times = [];
     for (int j = idx; j < student.length; j++) {
       var time = student[j];
       if (time.isEmpty) {
+        times.add(0);
         continue;
       }
       var logs = time.split(",");
@@ -171,7 +172,7 @@ List<TimeStudent> getTimeList() {
 }
 
 List<String> getDays() {
-  var idx = max(_nameIdx, _classIdx);
+  var idx = max(_nameIdx, _classIdx) + 1;
   return _types.sublist(idx);
 }
 
