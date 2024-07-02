@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 class MainFrame extends StatelessWidget {
   final Widget headline;
   final Widget child;
-  const MainFrame({required this.headline, required this.child, super.key});
+  final Color backgroundColor;
+  const MainFrame({required this.headline, required this.child, this.backgroundColor = CupertinoColors.systemGreen, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +19,8 @@ class MainFrame extends StatelessWidget {
               height: MediaQuery.of(context).size.height / 3,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: CupertinoColors.systemGreen,
-                border: Border(
+                color: backgroundColor,
+                border: const Border(
                   bottom: BorderSide(
                     color: CupertinoColors.systemGrey4,
                     width: 1,
@@ -47,4 +48,8 @@ class CustomDefaultTextStyle extends StatelessWidget {
       child: child,
     );
   }
+}
+
+Future<bool?> showCustomErrorDialog(String trueOptionString, String falseOptionString, String description) async {
+
 }

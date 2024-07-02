@@ -1,121 +1,55 @@
-import 'dart:async';
-
 import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:sas_login_app/backend/init.dart';
 import 'package:sas_login_app/ui/templates.dart';
+import 'package:simple_barcode_scanner/enum.dart';
+import 'package:simple_barcode_scanner/screens/io_device.dart';
+
+import '../backend/init.dart';
 
 class ScanScreen extends StatefulWidget {
   @override
   _ScanScreenState createState() => _ScanScreenState();
 }
 
-class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
+class _ScanScreenState extends State<ScanScreen> {
   bool _isLogin = true;
-
-  StreamSubscription<Object?>? _subscription;
 
   final ConfettiController _confettiController = ConfettiController(duration: const Duration(seconds: 1));
 
-  final MobileScannerController _controller = MobileScannerController(
-    autoStart: false,
-    torchEnabled: true,
-    useNewCameraSelector: true,
-    detectionTimeoutMs: 1000,
-  );
+  void _showError(String text) {
+    //TODO show error
+  }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // If the controller is not ready, do not try to start or stop it.
-    // Permission dialogs can trigger lifecycle changes before the controller is ready.
-    if (!_controller.value.isInitialized) {
+  void _showStudent(Student student) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("${student.name} aus der ${student.className} wurde ${(_isLogin) ? "eingeloggt" : "ausgeloggt"}"),
+      )
+    );
+  }
+
+  void _handleBarcode(String text) {
+    final intCode = int.tryParse(text);
+    if (intCode == null) {
+      _showError("Der gescannte QR-Code ist keine Zahl: $text");
       return;
     }
-
-    switch (state) {
-      case AppLifecycleState.detached:
-      case AppLifecycleState.hidden:
-      case AppLifecycleState.paused:
-        return;
-      case AppLifecycleState.resumed:
-      // Restart the scanner when the app is resumed.
-      // Don't forget to resume listening to the barcode events.
-        _subscription = _controller.barcodes.listen(_handleBarcode);
-
-        unawaited(_controller.start());
-      case AppLifecycleState.inactive:
-      // Stop the scanner when the app is paused.
-      // Also stop the barcode events subscription.
-        unawaited(_subscription?.cancel());
-        _subscription = null;
-        unawaited(_controller.stop());
-    }
-  }
-
-  @override
-  Future<void> dispose() async {
-    // Stop listening to lifecycle changes.
-    WidgetsBinding.instance.removeObserver(this);
-    // Stop listening to the barcode events.
-    unawaited(_subscription?.cancel());
-    _subscription = null;
-    // Dispose the widget itself.
-    super.dispose();
-    // Finally, dispose of the controller.
-    await _controller.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // Start listening to lifecycle changes.
-    WidgetsBinding.instance.addObserver(this);
-
-    // Start listening to the barcode events.
-    _subscription = _controller.barcodes.listen(_handleBarcode);
-
-    // Finally, start the scanner itself.
-    unawaited(_controller.start());
-  }
-
-  void _handleBarcode(Object? barcode) {
-    if (barcode is BarcodeCapture) {
-      for (final barcode in barcode.barcodes) {
-        if (barcode.format != BarcodeFormat.qrCode) {
-          continue;
-        } else if (barcode.rawValue == null) {
-          continue;
-        }
-        print("raw value:" + barcode.rawValue!);
-        final intCode = int.tryParse(barcode.rawValue!);
-        if (intCode == null) {
-          // TODO: error handling / show actual qr code value
-          return;
-        }
-        print(intCode);
-        Student? student = onCode(intCode, _isLogin? "in" : "out");
-        if (student != null) {
-          // TODO show student name & class
-          _confettiController.play();
-        } else {
-          if (!context.mounted) return;
-          //Show snack bar with error message
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Fehler beim Lesen des QR-Codes'),
-            backgroundColor: CupertinoColors.systemRed,
-          ));
-          return;
-        }
-      }
+    final Student? student = onCode(intCode, _isLogin? "in" : "out");
+    if (student != null) {
+      _showStudent(student);
+      _confettiController.play();
+    } else {
+      _showError("Der gescannte QR-Code gehört keinem gespeicherten Schüler");
+      return;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return MainFrame(
-      headline: Text('Scan QR code um ein ${_isLogin ? 'Logout' : 'Login'} durchzuführen'),
+      headline: Text(_isLogin ? 'Logout' : 'Login'),
       child: Stack(
         children: [
           IgnorePointer(
@@ -174,13 +108,42 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
                 flex: 2,
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: MobileScanner(controller: _controller),
+                  child: QRCodeScanner(
+                    "hi there",
+                      _handleBarcode,
+                      key: ValueKey("sdhjfgsdf")
+                  ),
                 ),
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class QRCodeScanner extends StatefulWidget {
+  final String cancelButtonText;
+  final dynamic Function(String) onScanned;
+
+  const QRCodeScanner(this.cancelButtonText, this.onScanned, {super.key});
+
+  @override
+  State<QRCodeScanner> createState() => _QRCodeScannerState();
+}
+
+class _QRCodeScannerState extends State<QRCodeScanner> {
+  final String lineColor = '#ff6666';
+
+  @override
+  Widget build(BuildContext context) {
+    return BarcodeScanner(
+      lineColor: lineColor,
+      cancelButtonText: widget.cancelButtonText,
+      isShowFlashIcon: false,
+      scanType: ScanType.qr,
+      onScanned: widget.onScanned,
     );
   }
 }
