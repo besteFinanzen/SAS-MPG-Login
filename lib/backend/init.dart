@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -22,7 +22,7 @@ Future<bool> initFile(String content, [String delimiter = ";"]) async {
     return true;
   }
 
-  var types = lines[0].split(delimiter);
+  var types = lines[0].replaceAll("\r", "").split(delimiter);
   var data = <List<String>>[];
   var nameIdx = -1;
   var classIdx = -1;
@@ -30,10 +30,11 @@ Future<bool> initFile(String content, [String delimiter = ";"]) async {
     if (lines[i].isEmpty) {
       continue;
     }
+    lines[i] = lines[i].replaceAll("\r", "");
     final values = lines[i].split(delimiter);
     data.add(values);
   }
-  print(data);
+  //print(data);
   for (int i = 0; i < types.length; i++) {
     if (types[i] == "Klasse") {
       classIdx = i;
@@ -67,12 +68,13 @@ Future<bool> initFile(String content, [String delimiter = ";"]) async {
   return true;
 }
 
-void saveFile() async {
-  String content = _types.join(_delimiter);
+void saveFile(File file) async {
+  String content = "${_types.join(_delimiter)}\n";
   for (int i = 0; i < _data.length; i++) {
-    content += "\n${_data[i].join(_delimiter)}";
+    var row = _data[i].join(_delimiter);
+    content += "$row\n";
   }
-  await output!.writeAsString(content);
+  await file.writeAsString(content);
 }
 
 Future initAfterShowingUI() async {
@@ -122,7 +124,8 @@ Student? onCode(int code, String checkType) {
   }
   checks += "$checkType:${now.hour}-${now.minute},";
   _data[code][idx] = checks;
-  saveFile();
+  hasSavedFile = true;
+  saveFile(output!);
   Student student = Student(name, className, b);
   return student;
 }
@@ -130,7 +133,7 @@ Student? onCode(int code, String checkType) {
 List<TimeStudent> getTimeList() {
   List<TimeStudent> students = [];
   int idx = max(_classIdx, _nameIdx) + 1;
-  print(_data);
+  //print(_data);
   for (int i = 0; i < _data.length; i++) {
     var student = _data[i];
     List<double> times = [];
@@ -141,13 +144,11 @@ List<TimeStudent> getTimeList() {
       }
       var logs = time.split(",");
       int minutes = 0;
-      print(""+ logs.length.toString() + ", " + logs.toString());
       for (int k = 0; k < logs.length; k++) {
         if (logs[k].isEmpty) {
           continue;
         }
         var log = logs[k].split(":");
-       print(log);
         int lastHour = -1;
         int lastMin = -1;
         int hour = int.parse(log[1].split("-")[0]);
@@ -163,7 +164,6 @@ List<TimeStudent> getTimeList() {
       }
       times.add(minutes / 60);
     }
-    print(student);
     var ts = TimeStudent(student[_nameIdx], student[_classIdx], times);
     students.add(ts);
   }
@@ -184,10 +184,12 @@ class TimeStudent {
 }
 
 void exportFile() async {
-  var params = SaveFileDialogParams(
-    sourceFilePath: output!.path,
-  );
-  await FlutterFileDialog.saveFile(params: params);
+  String? outputFile = await FilePicker.platform.saveFile(
+      dialogTitle: 'Save Your File to desired location',
+      fileName: "output.csv");
+
+  File returnedFile = File('$outputFile');
+  saveFile(returnedFile);
 }
 
 clearCache() async {
