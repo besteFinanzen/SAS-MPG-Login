@@ -10,7 +10,8 @@ List<String> _types = [];
 List<List<String>> _data = [];
 int _nameIdx = -1;
 int _classIdx = -1;
-late File output;
+File? output;
+bool hasSavedFile = false;
 
 Future initBeforeShowingUI() async {}
 
@@ -45,10 +46,13 @@ Future<bool> initFile(String content, [String delimiter = ";"]) async {
     _nameIdx = nameIdx;
     _classIdx = classIdx;
   } else {
-    for (int i = nameIdx; i < _types.length; i++) {
-      if (_types.contains(types[i])) {
+    var sidx = max(nameIdx, classIdx) + 1;
+    for (int i = sidx; i < types.length; i++) {
+      var type = types[i];
+      int i2 = _types.indexOf(type);
+      if (i2 != -1) {
         for (int j = 0; j < min(_data.length, data.length); j++) {
-          _data[i][j] += data[i][j];
+          _data[i2][j] += data[i][j];
         }
       } else {
         _types.add(types[i]);
@@ -64,17 +68,16 @@ void saveFile() async {
   for (int i = 0; i < _data.length; i++) {
     content += "\n${_data[i].join(_delimiter)}";
   }
-  await output.writeAsString(content);
+  await output!.writeAsString(content);
 }
 
 Future initAfterShowingUI() async {
-  //TODO: Add your code here
   var val = await getApplicationDocumentsDirectory();
   output = File("${val.path}/output.csv");
-  if (await output.exists()) {
-    var content = await output.readAsString();
+  if (await output!.exists()) {
+    var content = await output!.readAsString();
     await initFile(content);
-    //exportFile();
+    hasSavedFile = true;
   }
 }
 
@@ -120,13 +123,49 @@ Student? onCode(int code, String checkType) {
   return student;
 }
 
-List<String> getTimeList(String day) {
-  return [];
+List<TimeStudent> getTimeList() {
+  List<TimeStudent> students = [];
+  int idx = max(_classIdx, _nameIdx) + 1;
+  for (int i = 0; i < _data.length; i++) {
+    var student = _data[i];
+    List<double> times = [];
+    for (int j = idx; j < student.length; j++) {
+      var time = student[j];
+      var logs = time.split(",");
+      int minutes = 0;
+      for (int k = 0; k < logs.length; i++) {
+        var log = logs[k].split(":");
+        int lastHour = -1;
+        int lastMin = -1;
+        int hour = int.parse(log[1].split("-")[0]);
+        int min = int.parse(log[1].split("-")[1]);
+        if (log[0] == "in") {
+          lastHour = hour;
+          lastMin = min;
+        } else if (lastHour != -1 && lastMin != -1) {
+          int m = (hour - lastHour) * 60;
+          m += min - lastMin;
+          minutes += m;
+        }
+      }
+      times.add(minutes / 60);
+    }
+    var ts = TimeStudent(student[_nameIdx], times);
+    students.add(ts);
+  }
+  return students;
+}
+
+class TimeStudent {
+  final String name;
+  final List<double> times;
+
+  const TimeStudent(this.name, this.times);
 }
 
 void exportFile() async {
   var params = SaveFileDialogParams(
-    sourceFilePath: output.path,
+    sourceFilePath: output!.path,
   );
   await FlutterFileDialog.saveFile(params: params);
 }
