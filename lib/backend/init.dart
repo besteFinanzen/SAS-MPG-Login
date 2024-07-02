@@ -27,9 +27,13 @@ Future<bool> initFile(String content, [String delimiter = ";"]) async {
   var nameIdx = -1;
   var classIdx = -1;
   for (int i = 1; i < lines.length; i++) {
+    if (lines[i].isEmpty) {
+      continue;
+    }
     final values = lines[i].split(delimiter);
     data.add(values);
   }
+  print(data);
   for (int i = 0; i < types.length; i++) {
     if (types[i] == "Klasse") {
       classIdx = i;
@@ -126,15 +130,24 @@ Student? onCode(int code, String checkType) {
 List<TimeStudent> getTimeList() {
   List<TimeStudent> students = [];
   int idx = max(_classIdx, _nameIdx) + 1;
+  print(_data);
   for (int i = 0; i < _data.length; i++) {
     var student = _data[i];
     List<double> times = [];
     for (int j = idx; j < student.length; j++) {
       var time = student[j];
+      if (time.isEmpty) {
+        continue;
+      }
       var logs = time.split(",");
       int minutes = 0;
-      for (int k = 0; k < logs.length; i++) {
+      print(""+ logs.length.toString() + ", " + logs.toString());
+      for (int k = 0; k < logs.length; k++) {
+        if (logs[k].isEmpty) {
+          continue;
+        }
         var log = logs[k].split(":");
+       print(log);
         int lastHour = -1;
         int lastMin = -1;
         int hour = int.parse(log[1].split("-")[0]);
@@ -150,6 +163,7 @@ List<TimeStudent> getTimeList() {
       }
       times.add(minutes / 60);
     }
+    print(student);
     var ts = TimeStudent(student[_nameIdx], student[_classIdx], times);
     students.add(ts);
   }
@@ -174,6 +188,10 @@ void exportFile() async {
     sourceFilePath: output!.path,
   );
   await FlutterFileDialog.saveFile(params: params);
+}
+
+clearCache() async {
+  await output?.delete();
 }
 
 class Student {
