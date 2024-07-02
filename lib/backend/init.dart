@@ -150,7 +150,7 @@ List<TimeStudent> getTimeList() {
       }
       times.add(minutes / 60);
     }
-    var ts = TimeStudent(student[_nameIdx], times);
+    var ts = TimeStudent(student[_nameIdx], student[_classIdx], times);
     students.add(ts);
   }
   return students;
@@ -163,9 +163,10 @@ List<String> getDays() {
 
 class TimeStudent {
   final String name;
+  final String className;
   final List<double> times;
 
-  const TimeStudent(this.name, this.times);
+  const TimeStudent(this.name, this.className, this.times);
 }
 
 void exportFile() async {
