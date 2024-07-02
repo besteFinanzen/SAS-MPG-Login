@@ -156,6 +156,11 @@ List<TimeStudent> getTimeList() {
   return students;
 }
 
+List<String> getDays() {
+  var idx = max(_nameIdx, _classIdx);
+  return _types.sublist(idx);
+}
+
 class TimeStudent {
   final String name;
   final List<double> times;
