@@ -2,7 +2,6 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sas_login_app/backend/init.dart';
-import 'package:sas_login_app/ui/scan_screen.dart';
 import 'package:sas_login_app/ui/templates.dart';
 
 class FileSelectorScreen extends StatefulWidget {
@@ -82,10 +81,7 @@ class _FileSelectorScreenState extends State<FileSelectorScreen> {
                         color: CupertinoColors.activeGreen,
                         child: const Text('Starten',
                             style: TextStyle(color: CupertinoColors.white)),
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute<void>(
-                              builder: (BuildContext context) => ScanScreen()));
-                        },
+                        onPressed: () => Navigator.of(context).pushNamed("/scan"),
                       ),
                   ),
                 ],

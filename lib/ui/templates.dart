@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sas_login_app/backend/init.dart';
+import 'package:sas_login_app/ui/stats_screen.dart';
 
 class MainFrame extends StatelessWidget {
   final Widget headline;
@@ -9,9 +11,42 @@ class MainFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: CustomDefaultTextStyle(
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        actions: [
+          if (hasSavedFile) PopupMenuButton(
+            itemBuilder: (context) => <PopupMenuEntry>[
+              PopupMenuItem(
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.upload_file),
+                    SizedBox(width: 10),
+                    Text("Exportieren")
+                  ],
+                ),
+                onTap: () => exportFile(),
+              ),
+              PopupMenuItem(
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.show_chart),
+                    SizedBox(width: 10),
+                    Text("Statistik")
+                  ],
+                ),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                    builder: (BuildContext context) => const StatisticScreen()
+                )))
+            ],
+          ),
+        ],
+      ),
+      body: CustomDefaultTextStyle(
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
@@ -50,6 +85,27 @@ class CustomDefaultTextStyle extends StatelessWidget {
   }
 }
 
-Future<bool?> showCustomErrorDialog(String trueOptionString, String falseOptionString, String description) async {
-
+Future<bool?> showCustomErrorDialog(BuildContext context, String title, String trueOptionString, String description, {String? falseOptionString}) async {
+  return await showCupertinoDialog<bool?>(context: context,
+    builder: (BuildContext context) {
+      return CupertinoAlertDialog(
+        title: Text(title),
+        content: Text(description),
+        actions: [
+          if (falseOptionString != null) CupertinoDialogAction(
+            child: Text(falseOptionString),
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+          ),
+          CupertinoDialogAction(
+            child: Text(trueOptionString),
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+          ),
+        ],
+      );
+    },
+  );
 }

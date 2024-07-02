@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:sas_login_app/ui/scan_screen.dart';
 import 'package:sas_login_app/ui/select_file_screen.dart';
+import 'package:sas_login_app/ui/stats_screen.dart';
 
 import 'backend/init.dart' as backend_init;
 import 'ui/init.dart' as ui_init;
@@ -28,11 +30,15 @@ class MainApp extends StatelessWidget {
         Permission.manageExternalStorage.request();
       }
     });
-
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
       theme: ThemeData.dark(),
-      home: const FileSelectorScreen(),
+      initialRoute: "/file",
+      routes: {
+        "/file": (_) => const FileSelectorScreen(),
+        "/scan": (_) => const ScanScreen(),
+      },
     );
   }
 }

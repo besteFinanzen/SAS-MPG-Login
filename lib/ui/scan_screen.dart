@@ -8,6 +8,8 @@ import 'package:simple_barcode_scanner/screens/io_device.dart';
 import '../backend/init.dart';
 
 class ScanScreen extends StatefulWidget {
+  const ScanScreen({super.key});
+
   @override
   _ScanScreenState createState() => _ScanScreenState();
 }
@@ -17,8 +19,13 @@ class _ScanScreenState extends State<ScanScreen> {
 
   final ConfettiController _confettiController = ConfettiController(duration: const Duration(seconds: 1));
 
-  void _showError(String text) {
-    //TODO show error
+  void _showError(final String text) {
+    showCustomErrorDialog(
+        context,
+        "Error",
+        "okay",
+        text
+    );
   }
 
   void _showStudent(Student student) {
@@ -49,7 +56,8 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   Widget build(BuildContext context) {
     return MainFrame(
-      headline: Text(_isLogin ? 'Logout' : 'Login'),
+      headline: Text(_isLogin ? 'Login' : 'Logout'),
+      backgroundColor: _isLogin ? CupertinoColors.systemGreen : CupertinoColors.systemRed,
       child: Stack(
         children: [
           IgnorePointer(
@@ -110,8 +118,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   padding: const EdgeInsets.all(20.0),
                   child: QRCodeScanner(
                     "hi there",
-                      _handleBarcode,
-                      key: ValueKey("sdhjfgsdf")
+                    _handleBarcode,
                   ),
                 ),
               ),
