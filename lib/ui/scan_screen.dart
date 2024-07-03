@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +21,8 @@ class _ScanScreenState extends State<ScanScreen> {
 
   final ConfettiController _confettiController = ConfettiController(duration: const Duration(seconds: 1));
 
+  Completer coolDown = Completer();
+
   void _showError(final String text) {
     showCustomErrorDialog(
         context,
@@ -38,11 +42,16 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   void _handleBarcode(String text) {
+    if (coolDown.isCompleted) return;
     final intCode = int.tryParse(text);
     if (intCode == null) {
       _showError("Der gescannte QR-Code ist keine Zahl: $text");
       return;
     }
+    coolDown.complete();
+    Future.delayed(const Duration(seconds: 1)).then(
+        (_) => coolDown = Completer()
+    ); // Set Cooldown
     final Student? student = onCode(intCode, _isLogin? "in" : "out");
     if (student != null) {
       _showStudent(student);
@@ -115,7 +124,7 @@ class _ScanScreenState extends State<ScanScreen> {
               Flexible(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.all(80.0),
+                  padding: const EdgeInsets.all(60.0),
                   child: QRCodeScanner(
                     key: UniqueKey(),
                     "hi there",
@@ -142,7 +151,7 @@ class QRCodeScanner extends StatefulWidget {
 }
 
 class _QRCodeScannerState extends State<QRCodeScanner> {
-  final String lineColor = '#ff6666';
+  final String lineColor = '#000000';
 
   @override
   Widget build(BuildContext context) {

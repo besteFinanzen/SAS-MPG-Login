@@ -57,7 +57,7 @@ class _FileSelectorScreenState extends State<FileSelectorScreen> {
               : const Text(
                   'Wähle die Schülerliste aus, die du hochladen möchtest.',
                   textAlign: TextAlign.center),
-          (files.isEmpty)
+          (files.isEmpty && !hasSavedFile)
               ? CupertinoButton(
                   color: CupertinoColors.activeBlue,
                   onPressed: _addFile,

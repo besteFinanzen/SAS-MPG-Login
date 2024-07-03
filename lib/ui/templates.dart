@@ -11,6 +11,7 @@ class MainFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(hasSavedFile);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(

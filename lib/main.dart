@@ -4,7 +4,6 @@ import 'package:sas_login_app/ui/scan_screen.dart';
 import 'package:sas_login_app/ui/select_file_screen.dart';
 
 import 'backend/init.dart' as backend_init;
-import 'backend/init.dart';
 import 'ui/init.dart' as ui_init;
 
 void main() async {
@@ -34,7 +33,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
       theme: ThemeData.dark(),
-      initialRoute: (!hasSavedFile) ? "/file" : "/scan",
+      initialRoute: "/file",
       routes: {
         "/file": (_) => const FileSelectorScreen(),
         "/scan": (_) => const ScanScreen(),
