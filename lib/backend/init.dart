@@ -13,7 +13,15 @@ int _classIdx = -1;
 File? output;
 bool hasSavedFile = false;
 
-Future initBeforeShowingUI() async {}
+Future initBeforeShowingUI() async {
+  var val = await getApplicationDocumentsDirectory();
+  output = File("${val.path}/output.csv");
+  if (await output!.exists()) {
+    var content = await output!.readAsString();
+    await initFile(content);
+    hasSavedFile = true;
+  }
+}
 
 Future<bool> initFile(String content, [String delimiter = ";"]) async {
   _delimiter = delimiter;
@@ -77,15 +85,7 @@ void saveFile(File file) async {
   await file.writeAsString(content);
 }
 
-Future initAfterShowingUI() async {
-  var val = await getApplicationDocumentsDirectory();
-  output = File("${val.path}/output.csv");
-  if (await output!.exists()) {
-    var content = await output!.readAsString();
-    await initFile(content);
-    hasSavedFile = true;
-  }
-}
+Future initAfterShowingUI() async {}
 
 Student? onCode(int code, String checkType) {
   final now = DateTime.now();
@@ -135,7 +135,6 @@ List<TimeStudent> getTimeList() {
   int idx = max(_classIdx, _nameIdx) + 1;
   for (int i = 0; i < _data.length; i++) {
     var student = _data[i];
-    print(student);
     List<double> times = [];
     for (int j = idx; j < student.length; j++) {
       var time = student[j];
@@ -145,22 +144,26 @@ List<TimeStudent> getTimeList() {
       }
       var logs = time.split(",");
       int minutes = 0;
+      int lastHour = -1;
+      int lastMin = -1;
       for (int k = 0; k < logs.length; k++) {
         if (logs[k].isEmpty) {
           continue;
         }
         var log = logs[k].split(":");
-        int lastHour = -1;
-        int lastMin = -1;
         int hour = int.parse(log[1].split("-")[0]);
         int min = int.parse(log[1].split("-")[1]);
-        if (log[0] == "in") {
-          lastHour = hour;
-          lastMin = min;
-        } else if (lastHour != -1 && lastMin != -1) {
+        if (lastMin == -1 && lastHour == -1) {
+          if (log[0] == "in") {
+            lastHour = hour;
+            lastMin = min;
+          }
+        } else if (log[0] == "out") {
           int m = (hour - lastHour) * 60;
           m += min - lastMin;
           minutes += m;
+          lastHour = -1;
+          lastMin = -1;
         }
       }
       times.add(minutes / 60);

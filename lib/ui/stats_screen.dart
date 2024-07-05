@@ -26,7 +26,7 @@ class StatisticScreen extends StatelessWidget {
                 children: [
                   Text(e.className),
                   Text(e.name),
-                  ...e.times.map((f) => Text(f.toString()))
+                  ...e.times.map((f) => Text(f.toStringAsFixed(2)))
                 ]
               ))
             ],
