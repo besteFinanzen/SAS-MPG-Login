@@ -44,9 +44,15 @@ class MainFrame extends StatelessWidget {
                 onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
                     builder: (BuildContext context) => const StatisticScreen()
                 ))),
-              const PopupMenuItem(
-                  onTap: clearCache, //TODO maybe add dialog to ask
-                  child: Row(
+              PopupMenuItem(
+                  onTap: () async {
+                    final bool? yes = await showCustomErrorDialog(context, "Daten löschen", "Ja", "Sollen wirklich alle Daten gelöscht werden?", falseOptionString: "Nein");
+                    if (yes == true) await clearCache();
+                    if (!context.mounted) return;
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    Navigator.of(context).pushReplacementNamed("/file");
+                  },
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.show_chart),

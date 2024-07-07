@@ -73,6 +73,7 @@ Future<bool> initFile(String content, [String delimiter = ";"]) async {
       }
     }
   }
+  hasSavedFile = true;
   return true;
 }
 
@@ -196,8 +197,9 @@ void exportFile() async {
   saveFile(returnedFile);
 }
 
-clearCache() async {
+Future clearCache() async {
   await output?.delete();
+  hasSavedFile = false;
 }
 
 class Student {

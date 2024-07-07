@@ -74,7 +74,6 @@ class StatisticScreen extends StatelessWidget {
           )
       );
     }
-
     return MainFrame(
         small: true,
         headline: const Text("Aktuelle Statistik"),

@@ -8,10 +8,10 @@ class FileSelectorScreen extends StatefulWidget {
   const FileSelectorScreen({super.key});
 
   @override
-  _FileSelectorScreenState createState() => _FileSelectorScreenState();
+  FileSelectorScreenState createState() => FileSelectorScreenState();
 }
 
-class _FileSelectorScreenState extends State<FileSelectorScreen> {
+class FileSelectorScreenState extends State<FileSelectorScreen> {
   final List<XFile> files = [];
 
   Future _addFile() async {
@@ -81,7 +81,10 @@ class _FileSelectorScreenState extends State<FileSelectorScreen> {
                         color: CupertinoColors.activeGreen,
                         child: const Text('Starten',
                             style: TextStyle(color: CupertinoColors.white)),
-                        onPressed: () => Navigator.of(context).pushNamed("/scan"),
+                        onPressed: () async {
+                          await Navigator.of(context).pushNamed("/scan");
+                          setState(() {});
+                        },
                       ),
                   ),
                 ],
