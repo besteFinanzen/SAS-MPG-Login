@@ -6,8 +6,9 @@ import 'package:sas_login_app/ui/stats_screen.dart';
 class MainFrame extends StatelessWidget {
   final Widget headline;
   final Widget child;
+  final bool small;
   final Color backgroundColor;
-  const MainFrame({required this.headline, required this.child, this.backgroundColor = CupertinoColors.systemGreen, super.key});
+  const MainFrame({required this.headline, required this.child, this.backgroundColor = CupertinoColors.systemGreen, this.small = false, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +64,7 @@ class MainFrame extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           children: [
             Container(
-              height: MediaQuery.of(context).size.height / 3,
+              height: (!small) ? MediaQuery.of(context).size.height / 4 : MediaQuery.of(context).size.height / 6,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: backgroundColor,
