@@ -63,13 +63,29 @@ Future<bool> initFile(String content, [String delimiter = ";"]) async {
     for (int i = sidx; i < types.length; i++) {
       var type = types[i];
       int i2 = _types.indexOf(type);
-      if (i2 != -1) {
-        for (int j = 0; j < min(_data.length, data.length); j++) {
-          _data[i2][j] += data[i][j];
-        }
-      } else {
+      if (i2 == -1) {
         _types.add(types[i]);
-        _data.add(data[i]);
+        for (int j = 0; j < _data.length; j++) {
+          _data[j].add(data[j][i]);
+        }
+      }
+      for (int i = 0; i < data.length; i++) {
+        var row = data[i];
+        int idx = -1;
+        for (int j = 0; j < _data.length; j++) {
+          if (_data[j][0] == row[0]) {
+            idx = j;
+            break;
+          }
+        }
+        if (idx == -1) {
+          _data.add(row);
+        } else {
+          var sidx = max(nameIdx, classIdx) + 1;
+          for (int j = sidx; j < types.length; j++) {
+            _data[idx][j] = row[j];
+          }
+        }
       }
     }
   }
@@ -106,9 +122,17 @@ Student? onCode(int code, String checkType) {
     }
   }
 
-  if (code >= _data.length) {
+  int c = -1;
+  for (int i = 0; i < _data.length; i++) {
+    if (_data[i][0] == code.toString()) {
+      c = i;
+      break;
+    }
+  }
+  if (c == -1) {
     return null;
   }
+  code = c;
 
   if (idx >= _data[code].length) {
     return null;
